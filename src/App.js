@@ -1,60 +1,48 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {base64UrlDecode} from './util.js'
 
 function App() {
 
-    // function base64UrlDecode(str) {
-    //     let output = str.replace(/-/g, "+").replace(/_/g, "/");
-    //     switch (output.length % 4) {
-    //         case 0:
-    //             break;
-    //         case 2:
-    //             output += "==";
-    //             break;
-    //         case 3:
-    //             output += "=";
-    //             break;
-    //         default:
-    //             throw new Error("base64 string is not of the correct length");
-    //     }
-    //     try {
-    //         return b64DecodeUnicode(output);
-    //     }
-    //     catch (err) {
-    //         return atob(output);
-    //     }
-    // }
+    const [user, setUser] = useState({})
 
-    // function b64DecodeUnicode(str) {
-    //     return decodeURIComponent(atob(str).replace(/(.)/g, (m, p) => {
-    //         let code = p.charCodeAt(0).toString(16).toUpperCase();
-    //         if (code.length < 2) {
-    //             code = "0" + code;
-    //         }
-    //         return "%" + code;
-    //     }));
-    // }
+    function handleSignOut(event){
+        setUser({})
+        document.getElementById('signInDiv').hidden = false
+    }
 
     function handleCallBackResponse(resonse){
         const part = resonse.credential.split(".")[1];
-        var user =  JSON.parse(base64UrlDecode(part));
-        console.log(user)
+        var userObj =  JSON.parse(base64UrlDecode(part));
+        document.getElementById('signInDiv').hidden = true
+        setUser(userObj)
+        console.log(userObj)
     }
     useEffect(() => {
         google.accounts.id.initialize({
             client_id: '71759417408-glcohpo62mo1ucmjh0qrrrkut50jhkdm.apps.googleusercontent.com',
             callback: handleCallBackResponse
         })
-    }, [])
+    }, []);
+
     google.accounts.id.renderButton(
         document.getElementById('signInDiv'),
-        {theme: 'outline', size: 'large'}
+        {theme: 'filled_black', size: 'large', shape: 'pill'}
     )
-    google.accounts.id.prompt();// also display the One Tap dialog
+    //google.accounts.id.prompt();// also display the One Tap dialog
+    //Sub is the main id
     return (
         <div>
-            <div>NISNT</div>            
+            <div>Tst911</div>
             <div id='signInDiv'></div>
+            { Object.keys(user).length != 0 &&
+                <button onClick={ (e) => handleSignOut(e)}>Sign Out</button>
+            }
+            { user && 
+                <div>
+                    <img src = {user.picture}></img>
+                    <h3>{user.given_name} {user.family_name}</h3>
+                </div>
+            }
         </div>
     );
 }
